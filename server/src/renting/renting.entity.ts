@@ -28,6 +28,12 @@ export class RentingEntity {
     @Column()
     readerId: number;
 
+    @Column({
+        type: 'boolean',
+        default: false,
+    })
+    isPassed: boolean;
+
     @ManyToOne(
         () => BookEntity,
         (book) => book.rents,

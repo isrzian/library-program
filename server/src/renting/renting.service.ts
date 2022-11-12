@@ -1,7 +1,7 @@
 import {Injectable} from '@nestjs/common';
 import {InjectRepository} from '@nestjs/typeorm';
-import {RentingEntity} from './renting.entity';
 import {getRepository, Repository} from 'typeorm';
+import {RentingEntity} from './renting.entity';
 import {CreateRentDto} from './dtos/create-rent.dto';
 import {SearchRentDto} from './dtos/search-rent.dto';
 
@@ -41,6 +41,10 @@ export class RentingService {
 
             if (dto.id) {
                 queryBuilder.andWhere('renting.id = :id', {id: dto.id})
+            }
+
+            if (dto.isPassed) {
+                queryBuilder.andWhere('renting.isPassed = :isPassed', {isPassed: dto.isPassed})
             }
         }
 
