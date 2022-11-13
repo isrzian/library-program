@@ -10,10 +10,10 @@ export const RentingApi = createApi({
     baseQuery: fetchBaseQuery({baseUrl: 'http://localhost:8000/api/renting'}),
     endpoints: (build) => ({
         getRents: build.query<RentingResponse, {isPassed: boolean}>({
-            query: (query) => ({
+            query: ({isPassed}) => ({
                 url: 'search',
                 method: 'GET',
-                query,
+                params: {isPassed},
             }),
             providesTags: (result) => result
                 ? [
