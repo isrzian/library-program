@@ -11,11 +11,12 @@ interface BasicSelectProps {
     selectId: string,
     label: string,
     items: IReader[] | IBook[] | undefined,
-    onChange: (event: any) => void
+    onChange: (event: any) => void,
+    value: any,
 }
 
 export default function BasicSelect(props: BasicSelectProps) {
-    const {label, items, selectId, onChange} = props;
+    const {label, items, selectId, onChange, value} = props;
 
     return (
         <Box sx={{ minWidth: 120 }}>
@@ -24,12 +25,14 @@ export default function BasicSelect(props: BasicSelectProps) {
                 <Select
                     labelId="demo-simple-select-label"
                     id={selectId}
+                    name={selectId}
                     label={label}
-                    onChange={onChange}
+                    value={value}
+                    onChange={event => onChange(event)}
                     variant="standard"
                 >
                     {
-                        items?.map(item => <MenuItem value={item.id}>{item.name}</MenuItem>)
+                        items?.map(item => <MenuItem key={item.id} value={item.id}>{item.name}</MenuItem>)
                     }
                 </Select>
             </FormControl>

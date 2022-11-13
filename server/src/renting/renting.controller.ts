@@ -1,4 +1,4 @@
-import {Body, Controller, Get, Post, Query} from '@nestjs/common';
+import {Body, Controller, Get, Post, Query, Put, Param} from '@nestjs/common';
 import {RentingService} from './renting.service';
 import {CreateRentDto} from './dtos/create-rent.dto';
 import {SearchRentDto} from './dtos/search-rent.dto';
@@ -17,10 +17,18 @@ export class RentingController {
         return this.rentingService.createRent(dto);
     }
 
+    @Put('/:id')
+    async passed(
+        @Param('id') rentId: number,
+    ) {
+        return this.rentingService.passedRent(rentId);
+    }
+
     @Get('/search')
     async search(
         @Query() dto: SearchRentDto,
     ) {
+        console.log('12345678', dto)
         return this.rentingService.search(dto);
     }
 }

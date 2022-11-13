@@ -1,29 +1,39 @@
-import React, {ChangeEvent, Dispatch, SetStateAction, useState} from 'react';
-import {IRent} from '../../interfaces/IRent';
+import React, {ChangeEvent, Dispatch, SetStateAction} from 'react';
+
 import Button from '@mui/material/Button';
 import TextField from '@mui/material/TextField';
 import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogTitle from '@mui/material/DialogTitle';
-import {useGetBooksQuery, useGetReadersQuery, useAddRentMutation} from '../../redux';
+
+import {
+    useGetBooksQuery,
+    useGetReadersQuery,
+    useAddRentMutation,
+    usePassedRentMutation,
+} from '../../redux';
 import BasicSelect from '../Select/Select';
+import {defaultRent} from '../../pages';
+import {IRent} from '../../interfaces/IRent';
 
 interface RentDialogProps {
     open: boolean,
     setOpen: Dispatch<SetStateAction<boolean>>,
-    rent: Partial<IRent>,
+    currentRent: Partial<IRent>,
+    setCurrentRent: (value: (((prevState: Partial<IRent>) => Partial<IRent>) | Partial<IRent>)) => void
 }
 
 export const RentDialog = (props: RentDialogProps) => {
-    const {open, setOpen, rent} = props;
-    const [currentRent, setCurrentRent] = useState(rent);
+    const {open, setOpen, currentRent, setCurrentRent} = props;
 
     const books = useGetBooksQuery().data;
     const readers = useGetReadersQuery().data;
     const [addRent] = useAddRentMutation();
+    const [passedRent] = usePassedRentMutation();
 
     const handleClickOpen = () => {
+        setCurrentRent(defaultRent);
         setOpen(true);
     };
 
@@ -32,41 +42,52 @@ export const RentDialog = (props: RentDialogProps) => {
     };
 
     const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
-        setCurrentRent({...currentRent, [event.target.id]: event.target.value})
+        setCurrentRent({...currentRent, [event.target.name]: event.target.value})
     }
 
     const createRentHandle = () => {
         addRent(currentRent);
         handleClose();
     }
-    console.log(currentRent)
+
+    const passedRentHandle = (rentId?: number) => {
+        if (rentId) {
+            passedRent(rentId);
+        }
+        handleClose();
+    }
+
     return (
         <div>
             <Button variant="outlined" onClick={handleClickOpen}>
                 Создать аренду
             </Button>
             <Dialog open={open} onClose={handleClose}>
-                <DialogTitle>{!!rent ? 'Создать аренду' : 'Редактировать аренду'}</DialogTitle>
+                <DialogTitle>{!!currentRent.issueDate ? 'Создать аренду' : 'Редактировать аренду'}</DialogTitle>
                 <DialogContent>
                     <BasicSelect
                         selectId="bookId"
                         label="Книги"
                         items={books}
                         onChange={handleChange}
+                        value={currentRent.bookId}
                     />
                     <BasicSelect
                         selectId="readerId"
                         label="Читатель"
                         items={readers}
                         onChange={handleChange}
+                        value={currentRent.readerId}
                     />
                     <TextField
                         margin="dense"
                         id="returnDate"
                         label="Дата возврата"
                         type="date"
+                        name="returnDate"
                         fullWidth
                         variant="standard"
+                        value={currentRent.returnDate}
                         onChange={handleChange}
                     />
                     <TextField
@@ -76,6 +97,8 @@ export const RentDialog = (props: RentDialogProps) => {
                         type="number"
                         fullWidth
                         variant="standard"
+                        name="surcharge"
+                        value={currentRent.surcharge}
                         onChange={handleChange}
                     />
                     <TextField
@@ -85,12 +108,32 @@ export const RentDialog = (props: RentDialogProps) => {
                         type="number"
                         fullWidth
                         variant="standard"
+                        name="cost"
+                        value={currentRent.cost}
                         onChange={handleChange}
                     />
+                    <TextField
+                        margin="dense"
+                        id="discount"
+                        label="Скидка"
+                        type="number"
+                        fullWidth
+                        variant="standard"
+                        name="discount"
+                        value={currentRent.discount}
+                        onChange={handleChange}
+                    />
+                    <br/>
+                    <Button
+                        onClick={() => passedRentHandle(currentRent.id)}
+                        disabled={!currentRent.issueDate}
+                    >
+                        {currentRent.isPassed ? 'Пометить несданным' : 'Пометить сданным'}
+                    </Button>
                 </DialogContent>
                 <DialogActions>
-                    <Button onClick={handleClose}>Отмена</Button>
                     <Button onClick={createRentHandle}>Добавить</Button>
+                    <Button onClick={handleClose}>Отмена</Button>
                 </DialogActions>
             </Dialog>
         </div>

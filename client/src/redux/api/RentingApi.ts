@@ -9,8 +9,12 @@ export const RentingApi = createApi({
     tagTypes: ['Renting'],
     baseQuery: fetchBaseQuery({baseUrl: 'http://localhost:8000/api/renting'}),
     endpoints: (build) => ({
-        getRents: build.query<RentingResponse, void>({
-            query: () => `search`,
+        getRents: build.query<RentingResponse, {isPassed: boolean}>({
+            query: (query) => ({
+                url: 'search',
+                method: 'GET',
+                query,
+            }),
             providesTags: (result) => result
                 ? [
                     ...result.map(({ id }) => ({ type: 'Renting' as const, id })),
@@ -25,6 +29,13 @@ export const RentingApi = createApi({
                 body,
             }),
             invalidatesTags: [{ type: 'Renting', id: 'LIST' }],
+        }),
+        passedRent: build.mutation<IRent, number>({
+            query: (rentId) => ({
+                url: `/${rentId}`,
+                method: 'PUT',
+            }),
+            invalidatesTags: [{ type: 'Renting', id: 'LIST' }],
         })
     })
 })
@@ -32,4 +43,5 @@ export const RentingApi = createApi({
 export const {
     useAddRentMutation,
     useGetRentsQuery,
+    usePassedRentMutation,
 } = RentingApi;

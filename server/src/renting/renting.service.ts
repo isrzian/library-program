@@ -1,4 +1,4 @@
-import {Injectable} from '@nestjs/common';
+import {HttpException, HttpStatus, Injectable} from '@nestjs/common';
 import {InjectRepository} from '@nestjs/typeorm';
 import {getRepository, Repository} from 'typeorm';
 import {RentingEntity} from './renting.entity';
@@ -57,5 +57,20 @@ export class RentingService {
         }
 
         return queryBuilder.getMany();
+    }
+
+    async passedRent(rentId: number): Promise<RentingEntity> {
+        const rent = await this.rentingRepository.findOne({id: rentId});
+
+        if (!rent) {
+            throw new HttpException(
+                'Такого бронирования не существует!',
+                HttpStatus.UNPROCESSABLE_ENTITY,
+            );
+        }
+
+        rent.isPassed = !rent.isPassed;
+
+        return this.rentingRepository.save(rent);
     }
 }
