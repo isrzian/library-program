@@ -28,7 +28,6 @@ export class RentingController {
     async search(
         @Query() dto: SearchRentDto,
     ) {
-        console.log('12345678', dto)
         return this.rentingService.search(dto);
     }
 }
